@@ -1,32 +1,65 @@
+import { format, formatDistanceToNow } from "date-fns";
+import ptBR from "date-fns/locale/pt-BR";
+
 import { Avatar } from "./Avatar";
 import { Comment } from "./Comment";
+
 import styles from "./Post.module.css";
-export function Post() {
+
+export function Post({ author, content, publishedAt }) {
+  const publishedDateFormatted = format(
+    publishedAt,
+    "d 'de' LLLL 'às' HH:mm'h'",
+    {
+      locale: ptBR,
+    }
+  );
+
+  const publishedDateRelativeToNow = formatDistanceToNow(publishedAt, {
+    locale: ptBR,
+    addSuffix: true,
+  });
+
   return (
     <article className={styles.post}>
       <header>
         <div className={styles.author}>
-          <Avatar src="https://github.com/MarceloHBoff.png" />
+          <Avatar src={author.avatarUrl} />
           <div className={styles.authorInfo}>
-            <strong>MarceloHBoff</strong>
-            <span>Web Developer</span>
+            <strong>{author.name}</strong>
+            <span>{author.role}</span>
           </div>
         </div>
-        <time title="11 de Maio às 08:13h" dateTime="2024-06-29 18:05:00">
-          Publicado há 1h
+        <time
+          title={publishedDateFormatted}
+          dateTime={publishedAt.toISOString()}
+        >
+          {publishedDateRelativeToNow}
         </time>
       </header>
+      {/* 
+      return (
+              <Post
+                key={post.id}
+                author={post.author}
+                content={post.content}
+                publishedAt={post.publishedAt}
+              />
+            ); */}
       <div className={styles.content}>
-        <p>É os guri do grêmio</p>
-        <p>Não tem como</p>
-        <p>
-          Projetin felas{" "}
-          <a href="https://github.com/MarceloHBoff">github.com/MarceloHBoff</a>
-        </p>
-        <p>
-          <a href="">#Sextou </a>
-          <a href="">#SóPeloGole </a>
-        </p>
+        {content.map((line) => {
+          if (line.type == "paragraph") {
+            return <p key={line.id}>{line.content}</p>;
+          }
+          if (line.type == "link") {
+            return (
+              <p key={line.id}>
+                {" "}
+                <a href={line.src}>{line.content}</a>
+              </p>
+            );
+          }
+        })}
       </div>
 
       <form className={styles.commentForm}>
